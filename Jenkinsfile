@@ -30,9 +30,6 @@ pipeline {
         }
         stage('Build') {
             steps {
-                
-                sh './gradlew jar'
-                /*
                 rtGradleResolver (
                     id: 'teraResolver',
                     serverId: 'TerasologyArtifactory',
@@ -58,7 +55,6 @@ pipeline {
                 rtPublishBuildInfo (
                     serverId: 'TerasologyArtifactory'
                 )
-                */
             }
         }
     }
