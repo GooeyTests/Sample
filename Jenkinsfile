@@ -3,10 +3,15 @@ pipeline {
         label "default-java"
     }
 
+    environment {
+        SomeEnvVar = "WithSomeValue"
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 echo "Going to check out the things !"
+
                 git url: "https://github.com/Terasology/Sample.git", credentialsId: "GooeyHub"
             }
         }
@@ -14,12 +19,17 @@ pipeline {
             steps {
                 copyArtifacts(projectName: "Terasology/TerasologySonar", filter: "modules/Core/build.gradle", flatten: true, selector: lastSuccessful())
                 copyArtifacts(projectName: "Terasology/TerasologySonar", filter: "*, gradle/wrapper/**, config/**, natives/**", selector: lastSuccessful())
-                sh 'ls'
+                sh """
+                    ls
+                    rm -f settings.gradle
+                    rm -f gradle.properties
+                    echo "rootProject.name = '$JOB_BASE_NAME'" >> settings.gradle
+                    cat settings.gradle
+                """
             }
         }
         stage('Build') {
             steps {
-                
                 rtGradleResolver (
                     id: 'teraResolver',
                     serverId: 'TerasologyArtifactory',
@@ -31,7 +41,7 @@ pipeline {
                     serverId: 'TerasologyArtifactory',
                     repo: 'terasology-snapshot-local',
                 )
-                
+
                 rtGradleRun (
                     // Set to true if the Artifactory Plugin is already defined in build script.
                     usesPlugin: true,
@@ -41,8 +51,7 @@ pipeline {
                     resolverId: 'teraResolver',
                     deployerId: 'teraDeployer',
                 )
-                
-                
+
                 rtPublishBuildInfo (
                     serverId: 'TerasologyArtifactory'
                 )
