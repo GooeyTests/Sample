@@ -64,5 +64,6 @@ pipeline {
 def String findRealProjectName() {
     def jobNameParts = env.JOB_NAME.tokenize('/') as String[]
     println "Job name parts: $jobNameParts"
-    return jobNameParts.length < 2 ? env.JOB_NAME : jobNameParts[jobNameParts.length - 2]
+    String untrimmed = jobNameParts.length < 2 ? env.JOB_NAME : jobNameParts[jobNameParts.length - 2]
+    return untrimmed.trim()
 }
