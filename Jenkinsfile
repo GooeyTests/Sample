@@ -23,7 +23,7 @@ pipeline {
                     ls
                     rm -f settings.gradle
                     rm -f gradle.properties
-                    echo "rootProject.name = ' ${env.realProjectName}'" >> settings.gradle
+                    echo "rootProject.name = '${env.realProjectName}'" >> settings.gradle
                     cat settings.gradle
                 """
             }
@@ -67,6 +67,5 @@ pipeline {
 def String findRealProjectName() {
     def jobNameParts = env.JOB_NAME.tokenize('/') as String[]
     println "Job name parts: $jobNameParts"
-    String untrimmed = jobNameParts.length < 2 ? env.JOB_NAME : jobNameParts[jobNameParts.length - 2]
-    return untrimmed.trim()
+    return jobNameParts.length < 2 ? env.JOB_NAME : jobNameParts[jobNameParts.length - 2]
 }
