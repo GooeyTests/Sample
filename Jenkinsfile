@@ -4,14 +4,13 @@ pipeline {
     }
 
     environment {
-        SomeEnvVar = "WithSomeValue"
+        realProjectName = findRealProjectName()
     }
 
     stages {
         stage('Checkout') {
             steps {
                 echo "Going to check out the things !"
-
                 git url: "https://github.com/Terasology/Sample.git", credentialsId: "GooeyHub"
             }
         }
@@ -19,11 +18,12 @@ pipeline {
             steps {
                 copyArtifacts(projectName: "Terasology/TerasologySonar", filter: "modules/Core/build.gradle", flatten: true, selector: lastSuccessful())
                 copyArtifacts(projectName: "Terasology/TerasologySonar", filter: "*, gradle/wrapper/**, config/**, natives/**", selector: lastSuccessful())
+                echo "Real project name: ${env.realProjectName}"
                 sh """
                     ls
                     rm -f settings.gradle
                     rm -f gradle.properties
-                    echo "rootProject.name = '$JOB_BASE_NAME'" >> settings.gradle
+                    echo "rootProject.name = ' ${env.realProjectName}'" >> settings.gradle
                     cat settings.gradle
                 """
             }
@@ -55,7 +55,14 @@ pipeline {
                 rtPublishBuildInfo (
                     serverId: 'TerasologyArtifactory'
                 )
+                
             }
         }
     }
+}
+
+def String findRealProjectName() {
+    def jobNameParts = env.JOB_NAME.tokenize('/') as String[]
+    println "Job name parts: $jobNameParts"
+    return jobNameParts.length < 2 ? env.JOB_NAME : jobNameParts[jobNameParts.length - 2]
 }
