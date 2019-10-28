@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "Going to check out the things !"
-                git url: "https://github.com/Terasology/Sample.git", credentialsId: "GooeyHub"
+                chechout scm
             }
         }
         stage('Prep workspace') {
