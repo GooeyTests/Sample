@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "Going to check out the things !"
-                chechout scm
+                checkout scm
             }
         }
         stage('Prep workspace') {
